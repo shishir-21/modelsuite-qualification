@@ -48,11 +48,34 @@ const submitTask = async (req, res) => {
 // @access Protect only — no admin guard
 const getSubmission = async (req, res) => {
   try {
-    const submission = await Submission.findOne({ taskId: req.params.taskId })
-      .populate('talentId', 'name email');
+    const task = await Task.findById(req.params.taskId);
+
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found' });
+    }
+
+    if (req.user.role !== 'Admin') {
+      const isOpen = task.status === 'Open';
+
+      const isAssignedToUser =
+        task.assignedTo &&
+        task.assignedTo.toString() === req.user._id.toString();
+
+      if (!isOpen && !isAssignedToUser) {
+        return res.status(403).json({
+          message: 'Access denied',
+        });
+      }
+    }
+
+    const submission = await Submission.findOne({
+      taskId: req.params.taskId,
+    }).populate('talentId', 'name email');
 
     if (!submission) {
-      return res.status(404).json({ message: 'No submission found for this task' });
+      return res.status(404).json({
+        message: 'No submission found for this task',
+      });
     }
 
     res.json(submission);
