@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 import { deleteTask } from '../../api/tasks';
 
 /* ── SVG Action Icons ── */
@@ -88,9 +89,12 @@ const TasksTable = ({ tasks, onEdit, onRefresh }) => {
   const handleDelete = async (id) => {
     try {
       await deleteTask(id);
-      onRefresh();
+
+      toast.success('Task deleted successfully');
+
+      await onRefresh();
     } catch {
-      alert('Failed to delete task');
+      toast.error('Failed to delete task');
     }
   };
 

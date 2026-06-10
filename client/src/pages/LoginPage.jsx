@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
 
@@ -20,10 +21,11 @@ const LoginPage = () => {
     e.preventDefault();
     try {
       const { data } = await API.post('/auth/login', { email, password });
+      toast.success('Login successful');
       login(data);
       data.role === 'Admin' ? navigate('/admin/dashboard') : navigate('/talent/dashboard');
     } catch (err) {
-      alert(err.response?.data?.message || 'Login failed');
+      toast.error(err.response?.data?.message || 'Login failed');
     }
   };
 
